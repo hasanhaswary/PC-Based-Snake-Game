@@ -10,6 +10,8 @@ public class Snake_Move : MonoBehaviour
     public int score = 0;
     public GameObject snakeBodyPart;
     public Material snakeColor;
+    public Material appleColor;
+    public Material deathColor;
     private List<GameObject> BodyParts = new List<GameObject>();
     private List<Vector3> PosHistory = new List<Vector3>();
 
@@ -26,13 +28,13 @@ public class Snake_Move : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
-        transform.position += transform.forward * moveSpeed *Time.deltaTime;
+
+        transform.position += transform.forward * moveSpeed * Time.deltaTime;
 
 
-        
+
         float direction = Input.GetAxis("Horizontal") * Time.deltaTime * steerSpeed;
-        transform.Rotate(0,direction, 0);
+        transform.Rotate(0, direction, 0);
 
 
         PosHistory.Insert(0, transform.position);
@@ -43,7 +45,7 @@ public class Snake_Move : MonoBehaviour
         int index = 0;
         foreach (var body in BodyParts)
         {
-            if ((index*Gap) < PosHistory.Count)
+            if ((index * Gap) < PosHistory.Count)
             {
                 body.transform.position = PosHistory[index * Gap];
             }
@@ -60,14 +62,29 @@ public class Snake_Move : MonoBehaviour
         if (collision.gameObject.tag == "Apple")
         {
             Destroy(collision.gameObject);
-            //GetComponent<MeshRenderer>().material.color = Color.green;
             GrowSnake();
+            ChangeSnakeColor(appleColor);
             score++;
-
         }
-        
-       
+        else if (collision.gameObject.tag == "Orange")
+        {
+            Destroy(collision.gameObject);
+            GrowSnake();
+            ChangeSnakeColor(deathColor);
+            score++;
+        }
+        //else if (collision.gameObject.tag == "snakeBody")
+        //{
+        //    ChangeSnakeColor()
+        //}
+    }
 
+    private void OnCollisionExit(Collision collision)
+    {
+        if (Time.time > 2)
+        {
+            ChangeSnakeColor(snakeColor);
+        }
     }
 
     private void GrowSnake()
@@ -77,7 +94,23 @@ public class Snake_Move : MonoBehaviour
         BodyParts.Add(body);
     }
 
+    private void ChangeSnakeColor(Material material)
+    {
+        MeshRenderer headMesh = GetComponent<MeshRenderer>();
+        if (headMesh != null)
+        {
+            Material[] headMaterials = headMesh.materials;
+            headMaterials[0] = material;
+            headMesh.materials = headMaterials;
+        }
 
-
-
+        foreach (var body in BodyParts)
+        {
+            MeshRenderer bodyMesh = body.GetComponent<MeshRenderer>();
+            if (bodyMesh != null)
+            {
+                bodyMesh.material = material;
+            }
+        }
+    }
 }
