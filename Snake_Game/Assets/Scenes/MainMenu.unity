@@ -440,14 +440,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mainMenuScreen: {fileID: 2082193653}
   instructionScreen: {fileID: 1912174185}
-  muteButtonObj: {fileID: 0}
-  unmuteButtonObj: {fileID: 0}
-  mainMenuAudioObj: {fileID: 0}
+  muteButtonObj: {fileID: 1340191343}
+  unmuteButtonObj: {fileID: 2385413}
+  mainMenuAudioObj: {fileID: 1200018960}
   startButton: {fileID: 932868460}
   infoButton: {fileID: 763121050}
   muteButton: {fileID: 1340191345}
   unmuteButton: {fileID: 2385415}
-  exitInstructionButton: {fileID: 0}
+  exitInstructionButton: {fileID: 830459554}
   mainMenuAudio: {fileID: 1200018961}
 --- !u!4 &600943631
 Transform:
@@ -1059,11 +1059,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   instructionScreen: {fileID: 1912174185}
-  mainMenuScreen: {fileID: 2082193653}
-  gameScreen: {fileID: 0}
-  restartScreen: {fileID: 0}
   mainMenuAudio: {fileID: 1200018961}
-  displayedScore: {fileID: 0}
 --- !u!4 &1309637110
 Transform:
   m_ObjectHideFlags: 0
@@ -1562,9 +1558,9 @@ CanvasRenderer:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
+  - {fileID: 1309637110}
+  - {fileID: 600943631}
   - {fileID: 2082193657}
   - {fileID: 1912174189}
-  - {fileID: 246839962}
   - {fileID: 1200018962}
-  - {fileID: 600943631}
-  - {fileID: 1309637110}
+  - {fileID: 246839962}

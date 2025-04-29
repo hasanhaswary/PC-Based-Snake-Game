@@ -58,6 +58,14 @@ public class Snake_Move : MonoBehaviour
 
         PosHistory.Insert(0, transform.position);
 
+        //chat
+        // Limit PosHistory size to avoid memory issues
+        if (PosHistory.Count > Gap * (BodyParts.Count + 1))
+        {
+            PosHistory.RemoveAt(PosHistory.Count - 1);
+        }
+        //chat
+        
         if (PosHistory.Count == 0)
             return;
 
@@ -82,6 +90,7 @@ public class Snake_Move : MonoBehaviour
 
         if (collision.gameObject.tag == "Apple")
         {
+            Debug.Log("Apple collision");
             Destroy(collision.gameObject);
             GrowSnake();
             ChangeSnakeColor(appleColor);
@@ -89,6 +98,7 @@ public class Snake_Move : MonoBehaviour
             score++;
         }
         else if (collision.gameObject.tag == "Bomb") {
+            Debug.Log("Bomb collision");
             ChangeSnakeColor(deathColor);
             audioSystem.PlayOneShot(bombCollision);
             DestroySnake();
@@ -97,8 +107,9 @@ public class Snake_Move : MonoBehaviour
         }
         else if (collision.gameObject.tag == "snakeBody" || collision.gameObject.tag == "Wall")
         {
+            Debug.Log("SnakeBody or Wall Collision");
             ChangeSnakeColor(deathColor);
-            DestroySnake();
+            //DestroySnake();
             uiInteraction.GameEnd();
             audioSystem.PlayOneShot(gameEnd);
         }
@@ -114,11 +125,32 @@ public class Snake_Move : MonoBehaviour
         }
     }
 
+
     private void GrowSnake()
     {
+        //GameObject body = Instantiate(snakeBodyPart);
+        //body.transform.position = transform.position + Vector3.up * 0.5f;
+        //BodyParts.Add(body);
+
         GameObject body = Instantiate(snakeBodyPart);
-        body.transform.position = transform.position + Vector3.up * 0.5f;
+        // Use PosHistory to place the new body part at the correct position
+        if (PosHistory.Count >= Gap)
+        {
+            body.transform.position = PosHistory[Gap - 1]; // Place at the position where the head was 'Gap' frames ago
+        }
+        else
+        {
+            // If not enough history, place it slightly behind the head
+            body.transform.position = transform.position - transform.forward * 0.5f;
+        }
+        body.tag = "snakeBody";
+        Collider bodyCollider = body.GetComponent<Collider>();
+        if (bodyCollider != null)
+        {
+            bodyCollider.isTrigger = false;
+        }
         BodyParts.Add(body);
+        Debug.Log($"Snake grew. Body parts count: {BodyParts.Count}");
     }
 
     private void ChangeSnakeColor(Material material)

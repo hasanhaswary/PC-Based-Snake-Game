@@ -12,9 +12,6 @@ public class GameController : MonoBehaviour
 
     //Game Variables
     public GameObject instructionScreen;
-    public GameObject mainMenuScreen;
-    public GameObject gameScreen;
-    public GameObject restartScreen;
     public AudioSource mainMenuAudio;
      
     void Awake()
