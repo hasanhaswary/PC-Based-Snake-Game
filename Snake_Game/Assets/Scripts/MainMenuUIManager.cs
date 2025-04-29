@@ -22,20 +22,37 @@ public class MainMenuUIManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        startButton.onClick.AddListener(GameController.Instance.LoadMenu);
-        infoButton.onClick.AddListener(GameController.Instance.ShowInstructions);
-        muteButton.onClick.AddListener(() => GameController.Instance.MuteAudio(mainMenuAudioObj, unmuteButtonObj, muteButtonObj));
-        unmuteButton.onClick.AddListener(() => GameController.Instance.UnmuteAudio(mainMenuAudioObj, unmuteButtonObj, muteButtonObj));
-        exitInstructionButton.onClick.AddListener(GameController.Instance.HideInstructions);
-    }
+        //Intial State
+        mainMenuScreen.SetActive(true);
+        instructionScreen.SetActive(false);
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+        //Button Functionality
+        startButton.onClick.AddListener(() =>
+        {
+            GameController.Instance.LoadGame();
+            mainMenuAudio.Stop();
+            mainMenuScreen.SetActive(false);
+        });
 
-   
-        
-    
+        infoButton.onClick.AddListener(() =>
+        {
+            instructionScreen.SetActive(true);
+            mainMenuScreen.SetActive(false);
+        });
+
+        muteButton.onClick.AddListener(() => 
+        {
+            GameController.Instance.MuteAudio(mainMenuAudioObj, unmuteButtonObj, muteButtonObj);
+        });
+
+        unmuteButton.onClick.AddListener(() =>
+        {
+            GameController.Instance.UnmuteAudio(mainMenuAudioObj, unmuteButtonObj, muteButtonObj);
+        });
+
+        exitInstructionButton.onClick.AddListener(() =>
+        {
+            instructionScreen.SetActive(false);
+        });
+    }
 }
