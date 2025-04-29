@@ -78,6 +78,8 @@ public class Snake_Move : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
+        if (isDead) return;
+
         if (collision.gameObject.tag == "Apple")
         {
             Destroy(collision.gameObject);
@@ -142,6 +144,7 @@ public class Snake_Move : MonoBehaviour
     void DestroySnake()
     {
         isDead = true;
+        //score = 0;
         foreach (var body in BodyParts)
         {
             Destroy(body);
