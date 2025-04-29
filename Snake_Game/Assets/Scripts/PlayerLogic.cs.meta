@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 0034baabcddf8c84eb145a584d44f15e
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - snakeBodyPart: {fileID: 8955231847261794555, guid: b30e5d4006877594e8fd9eb3357b5602, type: 3}
+  - snakeColor: {fileID: 2100000, guid: 7cd2b0bb229d011498a8e979c96bf89c, type: 2}
+  - appleColor: {fileID: 2100000, guid: c27873858c1e35b41934fd5c530c775d, type: 2}
+  - deathColor: {fileID: 2100000, guid: cc99aaf6d57049549beacdbfda190b28, type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
