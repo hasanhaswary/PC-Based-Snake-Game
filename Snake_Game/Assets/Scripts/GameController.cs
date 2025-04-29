@@ -16,10 +16,7 @@ public class GameController : MonoBehaviour
     public GameObject gameScreen;
     public GameObject restartScreen;
     public AudioSource mainMenuAudio;
-    public Text displayedScore;
-    
-
-
+     
     void Awake()
     {
         if (Instance != null && Instance != this)

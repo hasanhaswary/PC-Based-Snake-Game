@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class GameUImanger : MonoBehaviour
+public class GameUIManager : MonoBehaviour
 
 {
     public Button exitButton;
@@ -18,6 +18,9 @@ public class GameUImanger : MonoBehaviour
     public GameObject restartScreen;
 
 
+    private GameController gameController = GameController.Instance;
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -25,21 +28,22 @@ public class GameUImanger : MonoBehaviour
         gameScreen.SetActive(true);
         restartScreen.SetActive(false);
 
+
         //Buttons Functionality
-        exitButton.onClick.AddListener(GameController.Instance.LoadMenu);
-        restartButton.onClick.AddListener(GameController.Instance.LoadGame);
+        exitButton.onClick.AddListener(gameController.LoadMenu);
+        restartButton.onClick.AddListener(gameController.LoadGame);
 
         muteButton.onClick.AddListener(() =>
         {
-            GameController.Instance.MuteAudio(audioSystem, unmuteButtonObj, muteButtonObj);
+            gameController.MuteAudio(audioSystem, unmuteButtonObj, muteButtonObj);
         });
 
         unmuteButton.onClick.AddListener(() =>
         {
-            GameController.Instance.UnmuteAudio(audioSystem, unmuteButtonObj, muteButtonObj);
+            gameController.UnmuteAudio(audioSystem, unmuteButtonObj, muteButtonObj);
         });
 
-        mainMenuButton.onClick.AddListener(GameController.Instance.LoadMenu);
+        mainMenuButton.onClick.AddListener(gameController.LoadMenu);
 
     }
 

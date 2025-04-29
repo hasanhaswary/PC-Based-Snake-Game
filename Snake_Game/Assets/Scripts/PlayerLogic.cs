@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Snake_Move : MonoBehaviour
 {
@@ -14,6 +15,8 @@ public class Snake_Move : MonoBehaviour
     public Material deathColor;
     private List<GameObject> BodyParts = new List<GameObject>();
     private List<Vector3> PosHistory = new List<Vector3>();
+    public bool isDead = false;
+    public Text displayedScore;
 
     //public AudioSource gameStart;
     //public AudioSource appleCrunch;
@@ -28,8 +31,9 @@ public class Snake_Move : MonoBehaviour
     public AudioClip gameEnd;
     public AudioClip gamePlay;
 
+    private GameUIManager uiInteraction;
 
-
+    
     // Start is called before the first frame update
     void Start()
     {
@@ -38,19 +42,19 @@ public class Snake_Move : MonoBehaviour
         //    PosHistory.Add(transform.position);
         //}
 
+        uiInteraction = FindObjectOfType<GameUIManager>();
+
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (isDead) return;
 
         transform.position += transform.forward * moveSpeed * Time.deltaTime;
 
-
-
         float direction = Input.GetAxis("Horizontal") * Time.deltaTime * steerSpeed;
         transform.Rotate(0, direction, 0);
-
 
         PosHistory.Insert(0, transform.position);
 
@@ -69,8 +73,6 @@ public class Snake_Move : MonoBehaviour
                 body.transform.position = PosHistory[PosHistory.Count - 1];
             }
             index++;
-
-
         }
     }
 
@@ -88,16 +90,18 @@ public class Snake_Move : MonoBehaviour
             ChangeSnakeColor(deathColor);
             audioSystem.PlayOneShot(bombCollision);
             DestroySnake();
-            GameController.Instance.LoadRestartMenu();
+            uiInteraction.GameEnd();
             audioSystem.PlayOneShot(gameEnd);
         }
         else if (collision.gameObject.tag == "snakeBody" || collision.gameObject.tag == "Wall")
         {
             ChangeSnakeColor(deathColor);
             DestroySnake();
-            GameController.Instance.LoadRestartMenu();
+            uiInteraction.GameEnd();
             audioSystem.PlayOneShot(gameEnd);
         }
+
+        displayedScore.text = $"{score}";
     }
 
     private void OnCollisionExit(Collision collision)
@@ -135,8 +139,14 @@ public class Snake_Move : MonoBehaviour
         }
     }
 
-    void DestroySnake() //Destroys the snake
+    void DestroySnake()
     {
-
+        isDead = true;
+        foreach (var body in BodyParts)
+        {
+            Destroy(body);
+        }
+        BodyParts.Clear();
+        Destroy(gameObject);
     }
 } 

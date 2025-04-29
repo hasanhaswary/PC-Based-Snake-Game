@@ -19,6 +19,8 @@ public class MainMenuUIManager : MonoBehaviour
     public Button exitInstructionButton;
     public AudioSource mainMenuAudio;
 
+    private GameController gameController = GameController.Instance;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -29,7 +31,7 @@ public class MainMenuUIManager : MonoBehaviour
         //Button Functionality
         startButton.onClick.AddListener(() =>
         {
-            GameController.Instance.LoadGame();
+            gameController.LoadGame();
             mainMenuAudio.Stop();
             mainMenuScreen.SetActive(false);
         });
@@ -42,12 +44,12 @@ public class MainMenuUIManager : MonoBehaviour
 
         muteButton.onClick.AddListener(() => 
         {
-            GameController.Instance.MuteAudio(mainMenuAudioObj, unmuteButtonObj, muteButtonObj);
+            gameController.MuteAudio(mainMenuAudioObj, unmuteButtonObj, muteButtonObj);
         });
 
         unmuteButton.onClick.AddListener(() =>
         {
-            GameController.Instance.UnmuteAudio(mainMenuAudioObj, unmuteButtonObj, muteButtonObj);
+            gameController.UnmuteAudio(mainMenuAudioObj, unmuteButtonObj, muteButtonObj);
         });
 
         exitInstructionButton.onClick.AddListener(() =>
