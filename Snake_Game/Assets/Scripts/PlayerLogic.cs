@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Snake_Move : MonoBehaviour
+public class PlayerLogic : MonoBehaviour
 {
     public float moveSpeed = 4f;
     public float steerSpeed = 180;
-    public int Gap = 10;
+    public int Gap = 2;
     public int score = 0;
     public GameObject snakeBodyPart;
     public Material snakeColor;
@@ -18,12 +18,6 @@ public class Snake_Move : MonoBehaviour
     public bool isDead = false;
     public Text displayedScore;
 
-    //public AudioSource gameStart;
-    //public AudioSource appleCrunch;
-    //public AudioSource bombCollision;
-    //public AudioSource gameEnd;
-    //public AudioSource gamePlay;
-
     public AudioSource audioSystem;
     public AudioClip gameStart;
     public AudioClip appleCrunch;
@@ -33,17 +27,16 @@ public class Snake_Move : MonoBehaviour
 
     private GameUIManager uiInteraction;
 
+
     
     // Start is called before the first frame update
     void Start()
     {
         uiInteraction = FindObjectOfType<GameUIManager>();
-
-        for (int i = 0; i < Gap; i++)
-        {
-            PosHistory.Add(transform.position);
-        }
+        PosHistory.Add(transform.position);
+        
     }
+
 
     // Update is called once per frame
     void Update()
@@ -68,13 +61,14 @@ public class Snake_Move : MonoBehaviour
         int index = 0;
         foreach (var body in BodyParts)
         {
+            int historyIndex = Mathf.Min((index + 1) * Gap, PosHistory.Count - 1);
             if ((index * Gap) < PosHistory.Count)
             {
-                body.transform.position = PosHistory[index * Gap] * Time.deltaTime;
+                body.transform.position = PosHistory[historyIndex];
             }
             else
             {
-                body.transform.position = PosHistory[PosHistory.Count - 1] * Time.deltaTime;
+                body.transform.position = PosHistory[PosHistory.Count - 1];
             }
             index++;
         }
@@ -97,25 +91,33 @@ public class Snake_Move : MonoBehaviour
             Debug.Log("Bomb collision");
             ChangeSnakeColor(deathColor);
             audioSystem.PlayOneShot(bombCollision);
+            Destroy(collision.gameObject);
             DestroySnake();
             uiInteraction.GameEnd();
             audioSystem.PlayOneShot(gameEnd);
         }
-        else if (collision.gameObject.tag == "snakeBody" || collision.gameObject.tag == "Wall")
+        else if (collision.gameObject.tag == "snakeBody")
         {
-            Debug.Log("SnakeBody or Wall Collision");
+            Debug.Log("SnakeBody Collision");
             ChangeSnakeColor(deathColor);
-            //DestroySnake();
+            DestroySnake();
             uiInteraction.GameEnd();
             audioSystem.PlayOneShot(gameEnd);
         }
-
+        else if (collision.gameObject.tag == "Wall")
+        {
+            Debug.Log("Wall Collision");
+            ChangeSnakeColor(deathColor);
+            DestroySnake();
+            uiInteraction.GameEnd();
+            audioSystem.PlayOneShot(gameEnd);
+        }
         displayedScore.text = $"{score}";
     }
 
     private void OnCollisionExit(Collision collision)
     {
-        if (Time.time > 2)
+        if (Time.time > 4)
         {
             ChangeSnakeColor(snakeColor);
         }
@@ -124,33 +126,33 @@ public class Snake_Move : MonoBehaviour
 
     private void GrowSnake()
     {
+
         GameObject body = Instantiate(snakeBodyPart);
-        
         if (BodyParts.Count < 2)
         {
             body.tag = "Untagged";
         }
-        body.transform.position = transform.position + Vector3.up * 0.5f;
-        BodyParts.Add(body);
+        else
+        {
+            body.tag = "snakeBody";
+        }
 
-        //GameObject body = Instantiate(snakeBodyPart);
-        //// Use PosHistory to place the new body part at the correct position
-        //if (PosHistory.Count >= Gap)
-        //{
-        //    body.transform.position = PosHistory[Gap-1]; // Place at the position where the head was 'Gap' frames ago
-        //}
-        //else
-        //{
-        //    // If not enough history, place it slightly behind the head
-        //    body.transform.position = transform.position - transform.forward * 0.5f;
-        //}
-        ////body.tag = "snakeBody";
-        //Collider bodyCollider = body.GetComponent<Collider>();
-        ////if (bodyCollider != null)
-        ////{
-        ////    bodyCollider.isTrigger = false;
-        ////}
-        //BodyParts.Add(body);
+        // Position behind the last body part or head
+        if (BodyParts.Count > 0)
+        {
+            GameObject lastBodyPart = BodyParts[BodyParts.Count - 1];
+            body.transform.position = lastBodyPart.transform.position;
+        }
+        else if (PosHistory.Count > 2)
+        {
+            body.transform.position = PosHistory[2];
+        }
+        else
+        {
+            body.transform.position = transform.position - transform.forward * 0.5f;
+        }
+
+        BodyParts.Add(body);
         Debug.Log($"Snake grew. Body parts count: {BodyParts.Count}");
     }
 
@@ -177,7 +179,7 @@ public class Snake_Move : MonoBehaviour
     void DestroySnake()
     {
         isDead = true;
-        //score = 0;
+        score = 0;
         foreach (var body in BodyParts)
         {
             Destroy(body);
