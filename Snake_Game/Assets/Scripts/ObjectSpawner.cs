@@ -1,22 +1,20 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections.Generic;
-using UnityEngine.SocialPlatforms.Impl;
 
 public class ObjectSpawner : MonoBehaviour
 {
     public GameObject applePrefab;
-    public GameObject bombPrefab; 
-    public float minX = -740f, maxX = 740f; 
-    public float minZ = -990f, maxZ = 990f; 
-    public float spawnY = 0.5f; 
-    public float bombSpawnInterval = 5f; 
-    public int maxBombs = 1; 
+    public GameObject bombPrefab;
+    public float minX = -740f, maxX = 740f;
+    public float minZ = -990f, maxZ = 990f;
+    public float spawnY = 0.5f;
+    public float bombSpawnInterval = 2f;
     public float bombLifetime = 10f; 
     private GameObject currentApple;
     private List<BombInfo> activeBombs = new List<BombInfo>();
-    private float lastBombSpawnTime = 0f;
     private int playerScore;
-    private int lastScoreThreshold = 0;
+    private List<int> scoreThresholds = new List<int> { 5, 8, 11, 14, 17, 20, 23, 26, 29, 32, 35, 38, 41, 44, 47, 50, 53, 56, 59, 62, 65, 68, 71, 74 };
+    private int lastThresholdCrossed;
 
     private class BombInfo
     {
@@ -32,85 +30,78 @@ public class ObjectSpawner : MonoBehaviour
 
     void Start()
     {
+        
         SpawnApple();
         SpawnApple();
     }
 
     void Update()
     {
-        playerScore = GameObject.FindWithTag("snakeHead")?.GetComponent<PlayerLogic>()?.score ?? 0;
-        int newThreshold = lastScoreThreshold;
-        if (playerScore > 75) newThreshold = 75;
-        else if (playerScore > 65) newThreshold = 65;
-        else if (playerScore > 55) newThreshold = 55;
-        else if (playerScore > 45) newThreshold = 45;
-        else if (playerScore > 35) newThreshold = 35;
-        else if (playerScore > 25) newThreshold = 25;
-        else if (playerScore > 10) newThreshold = 10;
-
-        // Increment maxBombs only when a new threshold is crossed
-        if (newThreshold > lastScoreThreshold)
-        {
-            maxBombs++;
-            lastScoreThreshold = newThreshold;
-        }
-
         if (currentApple == null)
         {
             SpawnApple();
         }
 
-        if (Time.time - lastBombSpawnTime >= bombSpawnInterval && activeBombs.Count < maxBombs)
+        playerScore = GameObject.FindWithTag("snakeHead")?.GetComponent<PlayerLogic>()?.score ?? 0;
+
+        if (scoreThresholds.Contains(playerScore) && playerScore != lastThresholdCrossed)
         {
             SpawnBomb();
-            lastBombSpawnTime = Time.time;
+            SpawnApple();
+            lastThresholdCrossed = playerScore;
+            Debug.Log($"Threshold = {lastThresholdCrossed} and playerScore = {playerScore}");
+            
         }
 
-
-        for (int i = activeBombs.Count - 1; i >= 0; i--)
+        while (playerScore == lastThresholdCrossed)
         {
-            BombInfo bombInfo = activeBombs[i];
-            if (bombInfo.bomb == null)
-            {
-                activeBombs.RemoveAt(i);
-                continue;
-            }
-
-            if (Time.time >= bombInfo.spawnTime + bombLifetime)
-            {
-                Destroy(bombInfo.bomb);
-                activeBombs.RemoveAt(i);
-            }
+            SpawnApple();
+            SpawnApple();
         }
     }
 
     void SpawnApple()
     {
-        Vector3 spawnPos;
-        int maxTries = 100;
-        int tries = 0;
-
-        do
+        Vector3 spawnPos = GetValidSpawnPosition();
+        if (spawnPos != Vector3.zero)
         {
-            spawnPos = new Vector3(
-                Random.Range(minX, maxX),
-                spawnY,
-                Random.Range(minZ, maxZ)
-            );
-            tries++;
+            currentApple = Instantiate(applePrefab, spawnPos, Quaternion.identity);
+            currentApple.tag = "Apple";
         }
-        while (!IsSpawnPositionClear(spawnPos) && tries < maxTries);
-
-        currentApple = Instantiate(applePrefab, spawnPos, Quaternion.identity);
-        currentApple.tag = "Apple";
+        else
+        {
+            Debug.LogWarning("Failed to find a valid spawn position for apple. Forcing spawn.");
+            spawnPos = new Vector3(Random.Range(minX, maxX), spawnY, Random.Range(minZ, maxZ));
+            currentApple = Instantiate(applePrefab, spawnPos, Quaternion.identity);
+            currentApple.tag = "Apple";
+        }
     }
-
 
     void SpawnBomb()
     {
-        Vector3 spawnPos;
-        int maxTries = 100;
+        Vector3 spawnPos = GetValidSpawnPosition();
+        if (spawnPos != Vector3.zero)
+        {
+            GameObject bomb = Instantiate(bombPrefab, spawnPos, Quaternion.identity);
+            bomb.tag = "Bomb";
+            activeBombs.Add(new BombInfo(bomb, Time.time));
+            Debug.Log($"Bomb Spawned at {spawnPos}, Active Bombs: {activeBombs.Count}");
+        }
+        else
+        {
+            Debug.LogWarning("Failed to find a valid spawn position for bomb. Forcing spawn.");
+            spawnPos = new Vector3(Random.Range(minX, maxX), spawnY, Random.Range(minZ, maxZ));
+            GameObject bomb = Instantiate(bombPrefab, spawnPos, Quaternion.identity);
+            bomb.tag = "Bomb";
+            activeBombs.Add(new BombInfo(bomb, Time.time));
+        }
+    }
+
+    Vector3 GetValidSpawnPosition(float initialCheckRadius = 0.5f, int maxTries = 300) // Reduced initialCheckRadius, increased maxTries
+    {
+        Vector3 spawnPos = Vector3.zero;
         int tries = 0;
+        float checkRadius = initialCheckRadius;
 
         do
         {
@@ -120,23 +111,23 @@ public class ObjectSpawner : MonoBehaviour
                 Random.Range(minZ, maxZ)
             );
             tries++;
+            if (tries > maxTries / 2 && checkRadius > 0.1f)
+            {
+                checkRadius *= 0.5f;
+                Debug.Log($"Reduced checkRadius to {checkRadius} to find spawn position.");
+            }
         }
-        while (!IsSpawnPositionClear(spawnPos) && tries < maxTries);
+        while (!IsSpawnPositionClear(spawnPos, checkRadius) && tries < maxTries);
 
-        GameObject bomb = Instantiate(bombPrefab, spawnPos, Quaternion.identity);
-        bomb.tag = "Bomb";
-        activeBombs.Add(new BombInfo(bomb, Time.time));
+        return tries < maxTries ? spawnPos : Vector3.zero;
     }
 
-
-    bool IsSpawnPositionClear(Vector3 position, float checkRadius = 0.5f)
+    bool IsSpawnPositionClear(Vector3 position, float checkRadius)
     {
         Collider[] colliders = Physics.OverlapSphere(position, checkRadius);
-
         foreach (Collider col in colliders)
         {
-            // Prevent spawn if touching snake, apple, or bomb
-            if (col.CompareTag("snakeBody") || col.CompareTag("Player") || col.CompareTag("Apple") || col.CompareTag("Bomb"))
+            if (col.CompareTag("snakeBody") || col.CompareTag("snakeHead") || col.CompareTag("Apple") || col.CompareTag("Bomb"))
             {
                 return false;
             }
@@ -144,15 +135,11 @@ public class ObjectSpawner : MonoBehaviour
         return true;
     }
 
-    //To set the spawn area properly
     void OnDrawGizmos()
     {
         Gizmos.color = Color.yellow;
-
         Vector3 center = new Vector3((minX + maxX) / 2f, spawnY, (minZ + maxZ) / 2f);
         Vector3 size = new Vector3(Mathf.Abs(maxX - minX), 0.1f, Mathf.Abs(maxZ - minZ));
-
         Gizmos.DrawWireCube(center, size);
     }
-
 }

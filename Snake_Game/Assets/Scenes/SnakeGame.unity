@@ -1535,13 +1535,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   applePrefab: {fileID: 5681217186459077351, guid: 15add57eaf285b04f9a6901c1bacb517, type: 3}
   bombPrefab: {fileID: 5221216162767776040, guid: 6e60eb9ef41774c47b23545d23faa5f2, type: 3}
-  minX: -38.4
-  maxX: 38.5
-  minZ: -30.95
-  maxZ: 30.75
+  minX: -37.9
+  maxX: 37.9
+  minZ: -29.6
+  maxZ: 29.9
   spawnY: 0.5
   bombSpawnInterval: 5
-  maxBombs: 2
   bombLifetime: 10
 --- !u!4 &965820381
 Transform:
