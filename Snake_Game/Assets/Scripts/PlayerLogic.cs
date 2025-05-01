@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class PlayerLogic : MonoBehaviour
@@ -25,14 +27,11 @@ public class PlayerLogic : MonoBehaviour
     public AudioClip gameEnd;
     public AudioClip gamePlay;
 
-    private GameUIManager uiInteraction;
-
-
-    
+        
     // Start is called before the first frame update
     void Start()
     {
-        uiInteraction = FindObjectOfType<GameUIManager>();
+       
         PosHistory.Add(transform.position);
         
     }
@@ -41,6 +40,11 @@ public class PlayerLogic : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (SceneManager.GetActiveScene().name != "SnakeGame")
+        {
+            return;
+        }
+
         if (isDead) return;
 
         transform.position += transform.forward * moveSpeed * Time.deltaTime;
@@ -80,7 +84,7 @@ public class PlayerLogic : MonoBehaviour
 
         if (collision.gameObject.tag == "Apple")
         {
-            Debug.Log("Apple collision");
+            //Debug.Log("Apple collision");
             Destroy(collision.gameObject);
             GrowSnake();
             ChangeSnakeColor(appleColor);
@@ -88,36 +92,39 @@ public class PlayerLogic : MonoBehaviour
             score++;
         }
         else if (collision.gameObject.tag == "Bomb") {
-            Debug.Log("Bomb collision");
+            //Debug.Log("Bomb collision");
             ChangeSnakeColor(deathColor);
             audioSystem.PlayOneShot(bombCollision);
             Destroy(collision.gameObject);
             DestroySnake();
-            uiInteraction.GameEnd();
+            isDead = true;
             audioSystem.PlayOneShot(gameEnd);
+            GameManager.Instance.ShowGameOver();
         }
         else if (collision.gameObject.tag == "snakeBody")
         {
-            Debug.Log("SnakeBody Collision");
+            //Debug.Log("SnakeBody Collision");
             ChangeSnakeColor(deathColor);
             DestroySnake();
-            uiInteraction.GameEnd();
+            isDead = true;
             audioSystem.PlayOneShot(gameEnd);
+            GameManager.Instance.ShowGameOver();
         }
         else if (collision.gameObject.tag == "Wall")
         {
-            Debug.Log("Wall Collision");
+            //Debug.Log("Wall Collision");
             ChangeSnakeColor(deathColor);
             DestroySnake();
-            uiInteraction.GameEnd();
+            isDead = true;
             audioSystem.PlayOneShot(gameEnd);
+            GameManager.Instance.ShowGameOver();
         }
         displayedScore.text = $"{score}";
     }
 
     private void OnCollisionExit(Collision collision)
     {
-        if (Time.time > 4)
+        if (Time.time > 5)
         {
             ChangeSnakeColor(snakeColor);
         }
@@ -153,7 +160,7 @@ public class PlayerLogic : MonoBehaviour
         }
 
         BodyParts.Add(body);
-        Debug.Log($"Snake grew. Body parts count: {BodyParts.Count}");
+        //Debug.Log($"Snake grew. Body parts count: {BodyParts.Count}");
     }
 
     private void ChangeSnakeColor(Material material)

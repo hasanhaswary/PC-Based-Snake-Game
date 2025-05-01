@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 public class ObjectSpawner : MonoBehaviour
 {
@@ -33,12 +34,24 @@ public class ObjectSpawner : MonoBehaviour
         
         SpawnApple();
         SpawnApple();
+        SpawnApple();
+        SpawnApple();
+        SpawnApple();
+        SpawnApple();
+
     }
 
     void Update()
     {
+        if (SceneManager.GetActiveScene().name != "SnakeGame")
+        {
+            return;
+        }
+
         if (currentApple == null)
         {
+            SpawnApple();
+            SpawnApple();
             SpawnApple();
         }
 
@@ -47,16 +60,11 @@ public class ObjectSpawner : MonoBehaviour
         if (scoreThresholds.Contains(playerScore) && playerScore != lastThresholdCrossed)
         {
             SpawnBomb();
+            SpawnBomb();
             SpawnApple();
             lastThresholdCrossed = playerScore;
-            Debug.Log($"Threshold = {lastThresholdCrossed} and playerScore = {playerScore}");
+            //Debug.Log($"Threshold = {lastThresholdCrossed} and playerScore = {playerScore}");
             
-        }
-
-        while (playerScore == lastThresholdCrossed)
-        {
-            SpawnApple();
-            SpawnApple();
         }
     }
 
@@ -70,7 +78,7 @@ public class ObjectSpawner : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("Failed to find a valid spawn position for apple. Forcing spawn.");
+            //Debug.LogWarning("Failed to find a valid spawn position for apple. Forcing spawn.");
             spawnPos = new Vector3(Random.Range(minX, maxX), spawnY, Random.Range(minZ, maxZ));
             currentApple = Instantiate(applePrefab, spawnPos, Quaternion.identity);
             currentApple.tag = "Apple";
@@ -85,11 +93,11 @@ public class ObjectSpawner : MonoBehaviour
             GameObject bomb = Instantiate(bombPrefab, spawnPos, Quaternion.identity);
             bomb.tag = "Bomb";
             activeBombs.Add(new BombInfo(bomb, Time.time));
-            Debug.Log($"Bomb Spawned at {spawnPos}, Active Bombs: {activeBombs.Count}");
+            //Debug.Log($"Bomb Spawned at {spawnPos}, Active Bombs: {activeBombs.Count}");
         }
         else
         {
-            Debug.LogWarning("Failed to find a valid spawn position for bomb. Forcing spawn.");
+            //Debug.LogWarning("Failed to find a valid spawn position for bomb. Forcing spawn.");
             spawnPos = new Vector3(Random.Range(minX, maxX), spawnY, Random.Range(minZ, maxZ));
             GameObject bomb = Instantiate(bombPrefab, spawnPos, Quaternion.identity);
             bomb.tag = "Bomb";
@@ -97,7 +105,7 @@ public class ObjectSpawner : MonoBehaviour
         }
     }
 
-    Vector3 GetValidSpawnPosition(float initialCheckRadius = 0.5f, int maxTries = 300) // Reduced initialCheckRadius, increased maxTries
+    Vector3 GetValidSpawnPosition(float initialCheckRadius = 0.5f, int maxTries = 300)
     {
         Vector3 spawnPos = Vector3.zero;
         int tries = 0;
@@ -114,7 +122,7 @@ public class ObjectSpawner : MonoBehaviour
             if (tries > maxTries / 2 && checkRadius > 0.1f)
             {
                 checkRadius *= 0.5f;
-                Debug.Log($"Reduced checkRadius to {checkRadius} to find spawn position.");
+                //Debug.Log($"Reduced checkRadius to {checkRadius} to find spawn position.");
             }
         }
         while (!IsSpawnPositionClear(spawnPos, checkRadius) && tries < maxTries);
