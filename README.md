@@ -9,7 +9,8 @@
 
 A modern take on the classic Snake game built with Unity! Navigate your snake through the arena, collect apples to grow longer, and avoid bombs and walls. How long can you survive?
 
-![Snake Game Demo](https://via.placeholder.com/800x400?text=Snake+Game+Screenshot)
+### 🕹️ SNAKE GAME DEMO
+https://github.com/user-attachments/assets/f6f3f6c0-6726-408d-b07c-2d0b8735a416
 
 ## ✨ Features
 
